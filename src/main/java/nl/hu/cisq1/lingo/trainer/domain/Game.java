@@ -15,7 +15,7 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private GameStatus gameStatus = GameStatus.WAITING_FOR_ROUND;
 
-    private Integer Score = 0;
+    private Integer score = 0;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
@@ -26,15 +26,19 @@ public class Game {
     }
 
     public Integer getScore() {
-        return Score;
-    }
-
-    public List<Round> getRounds() {
-        return rounds;
+        return score;
     }
 
     public Long getId() {
         return Id;
+    }
+
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     public void start(String word) throws InvalidMoveException {
@@ -42,49 +46,69 @@ public class Game {
             throw new InvalidMoveException("Move is not allowed, game has already been started.");
         }
 
-        Round round = new Round(word);
-
         this.gameStatus = GameStatus.PLAYING;
+        this.score = 0;
 
-        this.Score = 0;
-
-
+        Round round = new Round(word);
+        this.rounds.add(round);
     }
 
-    public void GuessWord(String word, String wordToGuess) throws InvalidMoveException {
-        if (this.hasEnded()) {
+    public void guessWord(String NextWord, String guess) throws InvalidMoveException {
+        if (gameStatus != GameStatus.PLAYING) {
             throw new InvalidMoveException("Move is not allowed, game is not playing.");
         }
 
-        if (!hasEnded()){
-            Round round = new Round(wordToGuess);
-            round.guess(word);
-            this.gameStatus = GameStatus.PLAYING;
-            this.Score = Score + 1;
+        Round lastRound = rounds.get(rounds.size() - 1);
 
-        }else {
+        lastRound.guess(guess);
+
+        if (hasPlayerLost()) {
             this.gameStatus = GameStatus.LOSE;
 
+            if (this.score == 0){
+                this.setScore(0);
+            }else {
+                this.score = score - 1;
+            }
+
+        } else if (lastRound.isWordGuessed()) {
+
+            Round round = new Round(NextWord);
+            this.rounds.add(round);
+            this.score = score + 1;
+            this.gameStatus = GameStatus.PLAYING;
         }
     }
 
-    public boolean IsWordGuessed(){
-        Round lastRound = rounds.get(rounds.size()-1);
-        return lastRound.IsWordGuessed();
+    public boolean hasPlayerLost() {
+        Round lastRound = rounds.get(rounds.size() - 1);
+        return lastRound.hasNoAttempts();
     }
 
-    public List<Feedback> getFeedbackList(){
-        Round lastRound = rounds.get(rounds.size()-1);
+    public List<Feedback> getCurrentFeedback() {
+        Round lastRound = rounds.get(rounds.size() - 1);
         return lastRound.getFeedbackList();
     }
 
-    public boolean hasEnded() {
-        Round lastRound = rounds.get(rounds.size()-1);
-        return lastRound.CheckAttempts();
+    public String getCurrentHint() {
+        Round lastRound = rounds.get(rounds.size() - 1);
+        return lastRound.getHint();
     }
 
-//    public int nextLength(){
-//
-//    }
-    
+    public int getCurrentAttempts() {
+        Round lastRound = rounds.get(rounds.size() - 1);
+        return lastRound.getAttempts();
+    }
+
+    public Integer getNextLength() {
+        int nextLength = 5;
+        Round lastRound = rounds.get(rounds.size() - 1);
+        if (lastRound.getWordToGuess().length() == 5) {
+            nextLength = nextLength + 1;
+        }
+        if (lastRound.getWordToGuess().length() == 6) {
+            nextLength = nextLength + 2;
+        }
+        return nextLength;
+    }
 }

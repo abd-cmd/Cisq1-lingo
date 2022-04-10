@@ -6,123 +6,103 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
 import java.util.List;
-import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class FeedbackTest {
 
-        private static List<Arguments> HintExamples() {
-            return List.of(
-                    Arguments.of("g....","groep","genen",List.of(Mark.CORRECT,Mark.ABSENT,Mark.ABSENT,Mark.CORRECT,Mark.ABSENT)),
-                    Arguments.of("g....","groep","gegroet",List.of(Mark.INVALID,Mark.INVALID,Mark.INVALID,Mark.INVALID,Mark.INVALID)),
-                    Arguments.of("g..e.","groep","gedoe",List.of(Mark.CORRECT,Mark.PRESENT,Mark.ABSENT,Mark.PRESENT,Mark.ABSENT) )
-            );
-        }
+    @Test
+    @DisplayName("word is guessed if all letters are correct")
+    void wordIsGuessed() {
+        //Given
+        String attempt = "woord";
+        List<Mark> marks = List.of(Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
 
-        @Test
-        @DisplayName("word is guessed if all letters are correct")
-        void wordIsGuessed(){
-            //Given
-            String attempt = "woord";
+        //when
+        Feedback feedback = new Feedback(attempt, marks);
 
-            List<Mark> marks = List.of(Mark.CORRECT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
+        //then
+        assertTrue(feedback.isWordGuessed());
+    }
 
-            //when
-            Feedback feedback = new Feedback(attempt,marks);
+    @Test
+    @DisplayName("word is not guessed if all letters are not correct")
+    void wordIsNotGuessed() {
+        String attempt = "woord";
+        List<Mark> marks = List.of(Mark.CORRECT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
 
-            //then
-            assertTrue(feedback.isWordGuessed());
-        }
+        Feedback feedback = new Feedback(attempt, marks);
 
-        @Test
-        @DisplayName("word is not guessed if all letters are not correct")
-        void wordIsNotGuessed(){
-            String attempt = "woord";
-            List<Mark> marks = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
+        assertFalse(feedback.isWordGuessed());
+    }
 
-            Feedback feedback = new Feedback(attempt,marks);
+    @Test
+    @DisplayName("attempt is not invalid if no letters are marked invalid")
+    void attemptIsNotValid() {
+        String attempt = "woord";
+        List<Mark> marks = List.of(Mark.CORRECT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
 
-            assertFalse(feedback.isWordGuessed());
-        }
+        Feedback feedback = new Feedback(attempt, marks);
 
-        @Test
-        @DisplayName("attempt is not invalid if no letters are marked invalid")
-        void attemptIsNotValid(){
-            String attempt = "woord";
-            List<Mark> marks = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
+        assertFalse(feedback.isAttemptInvalid());
+    }
 
-            Feedback feedback = new Feedback(attempt,marks);
+    @Test
+    @DisplayName("attempt is invalid if letters are marked invalid")
+    void attemptIsValid() {
+        String attempt = "woorden";
+        String wordToGuess = "woord";
 
-            assertFalse(feedback.isAttemptInvalid());
-        }
+        Feedback feedback = Feedback.invalid(attempt, wordToGuess);
 
-        @Test
-        @DisplayName("attempt is not invalid if no letters are marked invalid")
-        void attemptIsValid(){
-            String attempt = "woorden";
-            String wordToGuess = "woord";
+        assertTrue(feedback.isAttemptInvalid());
+    }
 
-            Feedback feedback = Feedback.invalid(attempt,wordToGuess);
+    @Test
+    @DisplayName("equal to another feedback")
+    void equals() {
+        String attempt = "woord";
+        List<Mark> marksA = List.of(Mark.CORRECT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
+        List<Mark> marksB = List.of(Mark.CORRECT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
 
-            assertTrue(feedback.isAttemptInvalid());
-        }
+        Feedback feedbackA = new Feedback(attempt, marksA);
+        Feedback feedbackB = new Feedback(attempt, marksB);
 
-        @Test
-        @DisplayName("equal to another feedback")
-        void equals(){
-            String attempt = "woord";
-            List<Mark> marksA = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
-            List<Mark> marksB = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
+        assertEquals(feedbackA, feedbackB);
+        assertEquals(feedbackA.hashCode(), feedbackB.hashCode());
+    }
 
-            Feedback feedbackA = new Feedback(attempt,marksA);
-            Feedback feedbackB = new Feedback(attempt,marksB);
+    @Test
+    @DisplayName("not equals to another feedback")
+    void notEquals() {
+        String attempt = "woord";
+        List<Mark> marksA = List.of(Mark.CORRECT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
+        List<Mark> marksB = List.of(Mark.PRESENT, Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT);
 
-            assertEquals(feedbackA,feedbackB);
-            assertEquals(feedbackA.hashCode(),feedbackB.hashCode());
-        }
+        Feedback feedbackA = new Feedback(attempt, marksA);
+        Feedback feedbackB = new Feedback(attempt, marksB);
 
-        @Test
-        @DisplayName("Not equal to another feedback")
-        void Notequals(){
-            String attempt = "woord";
-            List<Mark> marksA = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
-            List<Mark> marksB = List.of(Mark.PRESENT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
+        assertNotEquals(feedbackA, feedbackB);
+        assertNotEquals(feedbackA.hashCode(), feedbackB.hashCode());
+    }
 
-            Feedback feedbackA = new Feedback(attempt,marksA);
-            Feedback feedbackB = new Feedback(attempt,marksB);
+    @ParameterizedTest
+    @MethodSource("hintExamples")
+    @DisplayName("give hint based on previous hint and word to guess")
+    void giveHint(String previousHint, String wordToGuess, String attempt, List<Mark> marks, String expectedHint) {
+        Feedback feedback = new Feedback(attempt, marks);
+        assertEquals(expectedHint, feedback.giveHint(previousHint, wordToGuess));
+    }
 
-            assertNotEquals(feedbackA,feedbackB);
-            assertNotEquals(feedbackA.hashCode(),feedbackB.hashCode());
-        }
-
-        @ParameterizedTest
-        @MethodSource("HintExamples")
-        @DisplayName("give hint based on previous hint and word to guess")
-        void giveHint(String previousHint,String wordToGuess,String attempt, List<Mark> marks,String expectedHint){
-            Feedback feedback = new Feedback(attempt,marks);
-            assertEquals(expectedHint, feedback.giveHint(previousHint,wordToGuess) );
-        }
+    static List<Arguments> hintExamples() {
+        return List.of(
+                Arguments.of("g....", "groep", "genen", List.of(Mark.CORRECT, Mark.ABSENT, Mark.ABSENT, Mark.CORRECT, Mark.ABSENT), "g..e."),
+                Arguments.of("g....", "groep", "gegroet", List.of(Mark.INVALID, Mark.INVALID, Mark.INVALID, Mark.INVALID, Mark.INVALID), "g...."),
+                Arguments.of("g..e.", "groep", "gedoe", List.of(Mark.CORRECT, Mark.PRESENT, Mark.ABSENT, Mark.PRESENT, Mark.ABSENT), "g..e.")
+        );
+    }
 
 
 }
-
-
-
-//        @Test
-//        @DisplayName("attempt is not invalid if no letters are marked invalid")
-//        void attemptIsValid(){
-//            //Given
-//            String attempt = "woord";
-//
-//            List<Mark> marks = List.of(Mark.CORRECT,Mark.PRESENT,Mark.CORRECT,Mark.CORRECT,Mark.CORRECT);
-//
-//            //when
-//            Feedback feedback = new Feedback(attempt,marks);
-//
-//            //then
-//            assertFalse(feedback.isAttemptInvalid());
-//        }

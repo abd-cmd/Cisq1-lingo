@@ -1,9 +1,7 @@
 package nl.hu.cisq1.lingo.trainer.application;
 
-
 import nl.hu.cisq1.lingo.trainer.data.GameRepository;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
-import nl.hu.cisq1.lingo.trainer.domain.Round;
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidMoveException;
 import nl.hu.cisq1.lingo.words.application.WordService;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,8 @@ public class TrainerService {
 
         String word = wordService.provideRandomWord(5);
 
+        System.out.println(word);
+
         game.start(word);
 
         this.gameRepository.save(game);
@@ -32,30 +32,32 @@ public class TrainerService {
         return createGameData(game);
     }
 
-    public GameData GuessWord(String word,Long Id) throws InvalidMoveException {
+    public GameData GuessWord(String guess, Long id) throws InvalidMoveException {
 
-        Game game = this.gameRepository.findGameById(Id);
+        Game game = this.gameRepository.findById(id)
+                .orElseThrow(() -> new GameNotFoundException());
 
         if (game == null) {
             throw new GameNotFoundException();
         }
 
-        String wordToGuess = wordService.provideRandomWord(5);
+        String nextword = wordService.provideRandomWord(game.getNextLength());
 
-        game.GuessWord(word,wordToGuess);
+        System.out.println(nextword);
+
+        game.guessWord(nextword, guess);
 
         return createGameData(game);
     }
 
-
     private GameData createGameData(Game game) {
-
-        Round round = new Round();
-
-        return new GameData(game.getId(), game.getGameStatus(),
-                round.getWord_To_Guess(), Round.getMaxAttempts(),
-                game.getScore());
+        return new GameData(
+                game.getId(),
+                game.getGameStatus(),
+                game.getCurrentHint(),
+                game.getCurrentFeedback(),
+                game.getCurrentAttempts(),
+                game.getScore()
+        );
     }
-
-
 }

@@ -12,10 +12,10 @@ Feature: Lingo Trainer
     And : I should see the first letter
 
     Examples:
-    | previous length | next length |
-    | 5               | 6           |
-    | 6               | 7           |
-    | 7               | 5           |
+      | previous length | next length |
+      | 5               | 6           |
+      | 6               | 7           |
+      | 7               | 5           |
 
   Scenario Outline: Guess a word
     Given : I am playing a game
@@ -24,12 +24,12 @@ Feature: Lingo Trainer
     Then : I get feedback "<feedback>"
 
     Examples:
-      | word to guess       | attempt     | feedback                                        |
-      | GROEP               | GEGROET     | INVALID,INVALID,INVALID,INVALID,INVALID         |
-      | GROEP               | GENEN       | CORRECT,ABSENT,ABSENT,CORRECT,ABSENT            |
-      | GROEP               | GERST       | CORRECT,PRESENT,PRESENT,ABSENT,ABSENT           |
-      | GROEP               | GEDOE       | CORRECT,PRESENT,ABSENT,PRESENT,ABSENT           |
-      | GROEP               | GROEP       | CORRECT,CORRECT,CORRECT,CORRECT,CORRECT         |
+      | word to guess | attempt | feedback                                |
+      | GROEP         | GEGROET | INVALID,INVALID,INVALID,INVALID,INVALID |
+      | GROEP         | GENEN   | CORRECT,ABSENT,ABSENT,CORRECT,ABSENT    |
+      | GROEP         | GERST   | CORRECT,PRESENT,PRESENT,ABSENT,ABSENT   |
+      | GROEP         | GEDOE   | CORRECT,PRESENT,ABSENT,PRESENT,ABSENT   |
+      | GROEP         | GROEP   | CORRECT,CORRECT,CORRECT,CORRECT,CORRECT |
 
 
 

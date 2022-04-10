@@ -1,19 +1,24 @@
 package nl.hu.cisq1.lingo.trainer.application;
 
+import nl.hu.cisq1.lingo.trainer.domain.Feedback;
 import nl.hu.cisq1.lingo.trainer.domain.GameStatus;
+
+import java.util.List;
 
 public class GameData {
     private Long id;
     private GameStatus gameStatus;
-    private String WordToGuess;
-    private int MAX_ATTEMPTS;
+    private String hint;
+    private List<Feedback> feedbackList;
+    private int attempts;
     private int score;
 
-    public GameData(Long id, GameStatus gameStatus, String wordToGuess, int MAX_ATTEMPTS , int score) {
+    public GameData(Long id, GameStatus gameStatus, String hint, List<Feedback> feedbackList, int attempts, int score) {
         this.id = id;
         this.gameStatus = gameStatus;
-        WordToGuess = wordToGuess;
-        this.MAX_ATTEMPTS = MAX_ATTEMPTS;
+        this.hint = hint;
+        this.feedbackList = feedbackList;
+        this.attempts = attempts;
         this.score = score;
     }
 
@@ -21,35 +26,27 @@ public class GameData {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public GameStatus getGameStatus() {
         return gameStatus;
     }
 
-    public void setGameStatus(GameStatus gameStatus) {
-        this.gameStatus = gameStatus;
+    public String getHint() {
+        return hint;
     }
 
-    public String getWordToGuess() {
-        return WordToGuess;
+    public List<Feedback> getFeedbackList() {
+        return feedbackList;
     }
 
-    public void setWordToGuess(String wordToGuess) {
-        WordToGuess = wordToGuess;
-    }
-
-    public int getMAX_ATTEMPTS() {
-        return MAX_ATTEMPTS;
-    }
-
-    public void setMAX_ATTEMPTS(int MAX_ATTEMPTS) {
-        this.MAX_ATTEMPTS = MAX_ATTEMPTS;
+    public int getAttempts() {
+        return attempts;
     }
 
     public int getScore() {
         return score;
+    }
+
+    public void setAttempts(int attempts) {
+        this.attempts = attempts;
     }
 }

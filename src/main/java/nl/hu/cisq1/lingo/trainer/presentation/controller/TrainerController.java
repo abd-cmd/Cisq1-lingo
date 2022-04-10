@@ -4,7 +4,9 @@ package nl.hu.cisq1.lingo.trainer.presentation.controller;
 import nl.hu.cisq1.lingo.trainer.application.GameData;
 import nl.hu.cisq1.lingo.trainer.application.TrainerService;
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidMoveException;
+import nl.hu.cisq1.lingo.trainer.presentation.dto.Guess;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,14 +29,12 @@ public class TrainerController {
         }
     }
 
-    @PostMapping("/game/{id}/Guess")
-    public GameData GuessWord(String Word,@PathVariable Long id) {
-
+    @PostMapping("/game/{id}/guess")
+    public GameData GuessWord(@Validated @RequestBody Guess guess, @PathVariable Long id) {
         try {
-            return this.trainerService.GuessWord(Word,id);
+            return trainerService.GuessWord(guess.Word, id);
         } catch (InvalidMoveException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
-
 }

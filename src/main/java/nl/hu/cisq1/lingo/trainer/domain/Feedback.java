@@ -18,7 +18,7 @@ public class Feedback {
     @Convert(converter = MarksConverter.class)
     private List<Mark> markList = new ArrayList<>();
 
-    public Feedback(String attempt , List<Mark> marks){
+    public Feedback(String attempt, List<Mark> marks) {
         this.attempt = attempt;
         this.markList = marks;
     }
@@ -26,28 +26,33 @@ public class Feedback {
     public Feedback() {
     }
 
-    public static Feedback invalid(String attempt, String wordToGuess){
-
-//        List<Mark> marklist = Collections.nCopies(wordToGuess.length(),Mark.INVALID);
-
+    public static Feedback invalid(String attempt, String wordToGuess) {
         List<Mark> marks = new ArrayList<>();
 
-        int markslength = wordToGuess.length();
-
-        for (int i = 0; i < markslength; i++){
+        for (int i = 0; i < wordToGuess.length(); i++) {
             marks.add(Mark.INVALID);
         }
 
-        return new Feedback(attempt,marks);
+        return new Feedback(attempt, marks);
     }
 
-    public String giveHint(String previousHint,String wordToGuess){
+    public static Feedback correct(String attempt) {
+        List<Mark> marks = new ArrayList<>();
+
+        for (int i = 0; i < attempt.length(); i++) {
+            marks.add(Mark.CORRECT);
+        }
+
+        return new Feedback(attempt, marks);
+    }
+
+    public String giveHint(String previousHint, String wordToGuess) {
         StringBuilder nextHint = new StringBuilder();
 
-        for (int i = 0; i < markList.size(); i++){
-            if(markList.get(i).equals(Mark.CORRECT)){
+        for (int i = 0; i < markList.size(); i++) {
+            if (markList.get(i).equals(Mark.CORRECT)) {
                 nextHint.append(wordToGuess.charAt(i));
-            }else {
+            } else {
                 nextHint.append(previousHint.charAt(i));
             }
         }
@@ -55,14 +60,13 @@ public class Feedback {
         return nextHint.toString();
     }
 
-    public boolean isWordGuessed(){
+    public boolean isWordGuessed() {
         return this.markList.stream().allMatch(Mark.CORRECT::equals);
     }
 
-    public boolean isAttemptInvalid(){
+    public boolean isAttemptInvalid() {
         return this.markList.stream().anyMatch(Mark.INVALID::equals);
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -75,5 +79,9 @@ public class Feedback {
     @Override
     public int hashCode() {
         return Objects.hash(attempt, markList);
+    }
+
+    public List<Mark> getMarkList() {
+        return this.markList;
     }
 }

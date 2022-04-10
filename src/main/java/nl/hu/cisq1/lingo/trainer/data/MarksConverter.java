@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Converter
-public class MarksConverter implements AttributeConverter<List<Mark>,String> {
+public class MarksConverter implements AttributeConverter<List<Mark>, String> {
 
     @Override
     public String convertToDatabaseColumn(List<Mark> marks) {
