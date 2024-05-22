@@ -21,7 +21,6 @@ public class GameData {
         this.attempts = attempts;
         this.score = score;
     }
-//asdasda
     public Long getId() {
         return id;
     }
